@@ -29,19 +29,16 @@ def vericador(rut):
 def decodificado(lista):
 	return "".join([hex(a)[2:].decode('hex') for a in lista]).strip()
 
-print "a-1"
 MIFAREReader = MFRC522TUI.MFRC522()
-print "a0"
+
 while banderaLectura:
 	(status,TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
-	print "a1"
 	# Comprueba si es valida la tarjeta
 	if status == MIFAREReader.MI_OK:
 		(status,uid) = MIFAREReader.MFRC522_Anticoll()
 		print "uid", uid
 		size=MIFAREReader.MFRC522_SelectTag(uid)
 		print "size:", size
-		print "a2"
 		# Escoge solo las tarjetas Mifare 4k
 		if size==56:
 			if status == MIFAREReader.MI_OK:
@@ -51,8 +48,9 @@ while banderaLectura:
 
 				#------------------------------- I - Lectura de Bloques -------------------------------#
 
-				bloqueRut=68 # Bloque del rut
+				bloqueRut=79 # Bloque del rut
 				status = MIFAREReader.MFRC522_Auth(MIFAREReader.PICC_AUTHENT1A, bloqueRut, key, uid)
+				print "status", status
 				if status == MIFAREReader.MI_OK:
 					sector,datos= MIFAREReader.MFRC522_Read(bloqueRut)
 					rutL= [hex(datos[x]) for x in range(5)]
