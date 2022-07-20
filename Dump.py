@@ -24,6 +24,9 @@
 import RPi.GPIO as GPIO
 import MFRC522TUI
 import signal
+import requests
+from flask import Flask
+
 
 continue_reading = True
 
@@ -55,18 +58,13 @@ while continue_reading:
 
     # If we have the UID, continue
     if status == MIFAREReader.MI_OK:
-
         # Print UID
         print "Card read UID: %s,%s,%s,%s" % (uid[0], uid[1], uid[2], uid[3])
+        break
+
+
+app = Flask(__name__)
+
+@app.route('/some-url')
+def get_data():
     
-        # This is the default key for authentication
-        key = [0xA0,0xA1,0xA2,0xA3,0xA4,0xA5]
-        
-        # Select the scanned tag
-        MIFAREReader.MFRC522_SelectTag(uid)
-
-        # Dump the data
-        MIFAREReader.MFRC522_DumpClassic1K(key, uid)
-
-        # Stop
-        MIFAREReader.MFRC522_StopCrypto1()
