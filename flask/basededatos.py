@@ -26,18 +26,22 @@ def main():
     cursor = conn.cursor()
 
     # obtener estudiante id a partir de uid de TUI
-    query = cursor.execute("SELECT * FROM estudiante WHERE uid = %s", request.args.get("uid"))
-    if query == 0:
+    print(request.args.get("uid"))
+    query = cursor.execute("SELECT * FROM estudiantes WHERE id_tui=" + str(request.args.get("uid")))
+    
+    estudiante = cursor.fetchall()
+    print("estudiante:", estudiante)
+    if estudiante == []:
         print("Estudiante no encontrado")
         cursor.close()
         conn.close()
         return {"valido":0, "nombre":"juanito" , "apellido1":"eeeeehh", "rol":"2025157516-1"}
-    
-    estudiante = cursor.fetchall()[0]
+
+    estudiante = estudiante[0]
     print("estudiante id:", estudiante.id)
 
     # verificar 
-    cursor.execute("SELECT valido FROM pase_usm WHERE estudiante_id = %s", estudiante.id)
+    cursor.execute("SELECT valido FROM pase_usm WHERE estudiante_id = " + estudiante.id)
     valido = cursor.fetchall()[0]
     
     print("validez:", valido)
