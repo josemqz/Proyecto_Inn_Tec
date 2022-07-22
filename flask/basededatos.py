@@ -1,22 +1,28 @@
 from flask import Flask, render_template, request
 # from requests import request
-import pyodbc
+#import pyodbc
 import json
+import mysql.connector
 
 basededatos = Flask(__name__)
 def conectar():
-    s = "" #servidor
-    d = "Base de Datos"
-    u = '' #usuario
-    p = '' #contraseña
-    cnxn = pyodbc.connect("DRIVER={ODBC Driver 17 for SQL Server};SERVER="+s+";DATABASE="+d+";UID="+u+";PWD="+p)
-    conn = pyodbc.connect(cnxn)
+    configDB = {
+        'user': 'inntec',
+        'password': '123456',
+        'host': 'localhost',
+        'database':'inn_tec_db'
+    }
+    conn = mysql.connector.connect(**configDB)
     return conn
 
 @basededatos.route('/verificar', methods=['GET']) 
-def verificar():
+def main():
 
     conn = conectar()
+    if not conn.is_connected():
+        print("Error en conexion de base de datos")
+        exit(1)
+    print("Base de datos conectada")
     cursor = conn.cursor()
 
     # obtener estudiante id a partir de uid de TUI
@@ -57,4 +63,4 @@ def agregar():
 """
 
 if (__name__ == '__main__'):
-    basededatos.run(debug=True)
+    basededatos.run(debug=True, host='0.0.0.0')
