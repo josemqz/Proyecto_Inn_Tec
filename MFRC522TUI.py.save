@@ -295,6 +295,7 @@ class MFRC522:
     else:
       return 0
   
+  #					i, key, uid
   def MFRC522_Auth(self, authMode, BlockAddr, Sectorkey, serNum):
     buff = []
 
@@ -309,15 +310,18 @@ class MFRC522:
     while(i < len(Sectorkey)):
       buff.append(Sectorkey[i])
       i = i + 1
+    print "buff", buff
     i = 0
 
     # Next we append the first 4 bytes of the UID
+    # probando con 5 jaja
     while(i < 4):
       buff.append(serNum[i])
       i = i +1
 
     # Now we start the authentication itself
     (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_AUTHENT,buff)
+    print "auth-ToCard() status:", status
 
     # Check if an error occurred
     if not(status == self.MI_OK):
@@ -356,7 +360,7 @@ class MFRC522:
     if not(status == self.MI_OK) or not(backLen == 4) or not((backData[0] & 0x0F) == 0x0A):
         status = self.MI_ERR
     
-    print((str(backLen)+" backdata &0x0F == 0x0A "+str(backData[0]&0x0F)))
+    print str(backLen)+" backdata &0x0F == 0x0A "+str(backData[0]&0x0F)
     if status == self.MI_OK:
         i = 0
         buf = []
@@ -368,19 +372,19 @@ class MFRC522:
         buf.append(crc[1])
         (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE,buf)
         if not(status == self.MI_OK) or not(backLen == 4) or not((backData[0] & 0x0F) == 0x0A):
-            print("Error while writing")
+            print "Error while writing"
         if status == self.MI_OK:
-            print("Data written")
+            print "Data written"
 
   def MFRC522_DumpClassic1K(self, key, uid):
     i = 0
-    while i < 64:
+    while i < 255:
         status = self.MFRC522_Auth(self.PICC_AUTHENT1A, i, key, uid)
         # Check if authenticated
         if status == self.MI_OK:
             self.MFRC522_Read(i)
         else:
-            print("Authentication error")
+            print "Authentication error"
         i = i+1
 
   def MFRC522_Init(self):

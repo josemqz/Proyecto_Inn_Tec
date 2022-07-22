@@ -25,46 +25,41 @@ import RPi.GPIO as GPIO
 import MFRC522TUI
 import signal
 import requests
-from flask import Flask
-
 
 continue_reading = True
+url_verificacion_estudiante = "/localhost:5000/"
 
 # Capture SIGINT for cleanup when the script is aborted
 def end_read(signal,frame):
     global continue_reading
-    print "Ctrl+C captured, ending read."
     continue_reading = False
     GPIO.cleanup()
 
 # Hook the SIGINT
 signal.signal(signal.SIGINT, end_read)
 
+def verificar(uid):
+	return requests.get(url_verificacion_estudiante)
+
 # Create an object of the class MFRC522
 MIFAREReader = MFRC522TUI.MFRC522()
 
 # This loop keeps checking for chips. If one is near it will get the UID and authenticate
 while continue_reading:
-    
+
     # Scan for cards    
     (status,TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
 
     # If a card is found
     if status == MIFAREReader.MI_OK:
-        print "Card detected"
-    
+        print("Tarjeta detectada")
+
     # Get the UID of the card
     (status,uid) = MIFAREReader.MFRC522_Anticoll()
 
     # If we have the UID, continue
     if status == MIFAREReader.MI_OK:
         # Print UID
-        print "Card read UID: %s,%s,%s,%s" % (uid[0], uid[1], uid[2], uid[3])
-        break
+        print("UID:", uid)
 
-
-app = Flask(__name__)
-
-@app.route('/some-url')
-def get_data():
-    
+	if verificar(uid)
