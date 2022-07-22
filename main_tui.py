@@ -25,12 +25,15 @@ import RPi.GPIO as GPIO
 import MFRC522TUI
 import signal
 import requests
+import os
+#import json
 
 continue_reading = True
-url_verificacion_estudiante = "/localhost:5000/"
+url_verificacion_estudiante = "http://10.6.49.201:5000/verificar"
 
 # Capture SIGINT for cleanup when the script is aborted
 def end_read(signal,frame):
+    #print("Campus:", estudime):
     global continue_reading
     continue_reading = False
     GPIO.cleanup()
@@ -39,27 +42,38 @@ def end_read(signal,frame):
 signal.signal(signal.SIGINT, end_read)
 
 def verificar(uid):
-	return requests.get(url_verificacion_estudiante)
+    uid = "".join(list(map(str,uid)))
+    print("join:", uid)
+    return requests.get(url_verificacion_estudiante, {"uid":uid}).content
+
 
 # Create an object of the class MFRC522
 MIFAREReader = MFRC522TUI.MFRC522()
 
-# This loop keeps checking for chips. If one is near it will get the UID and authenticate
+# This loop keeps checking for chips. If one is njson
 while continue_reading:
-
-    # Scan for cards    
     (status,TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
 
     # If a card is found
-    if status == MIFAREReader.MI_OK:
-        print("Tarjeta detectada")
+    if status != MIFAREReader.MI_OK:
+        print("Tarjeta no detectada") 
+        continue
+    
+    print("Tarjeta detectada!")
 
     # Get the UID of the card
     (status,uid) = MIFAREReader.MFRC522_Anticoll()
 
-    # If we have the UID, continue
-    if status == MIFAREReader.MI_OK:
-        # Print UID
-        print("UID:", uid)
+    # UID valido
+    if status != MIFAREReader.MI_OK:
+        print("Identificador no válido") 
+        continue
 
-	if verificar(uid)
+    print("UID:", uid)
+    estudiante_info = verificar(uid)
+    print(estudiante_info, "\n")
+    print("Bienvenid@!\n")
+    print("Nombre:", estudiante_info.nombre, estudiante_info.apellido1)
+    #print("Campus:", estudiante_info.campus)
+    print("Rol:", estudiante_info.rol)
+    os.system.cls()

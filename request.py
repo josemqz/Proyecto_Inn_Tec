@@ -1,9 +1,4 @@
-import requests
-
-
-class rpi_request:
-
-	def ___init__(self, root):
-		self.root = root
-
-export 
+print("Bienvenid@!\n")
+print("Nombre:", "Martin", "Salinas")
+#print("Campus:", estudiante_info.campus)
+print("Rol:", "201773557-0")
