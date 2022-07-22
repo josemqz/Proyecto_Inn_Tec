@@ -1,6 +1,7 @@
-from flask import Flask, render_template
-from requests import request
+from flask import Flask, render_template, request
+# from requests import request
 import pyodbc
+import json
 
 basededatos = Flask(__name__)
 def conectar():
@@ -12,20 +13,39 @@ def conectar():
     conn = pyodbc.connect(cnxn)
     return conn
 
-@basededatos.route('/')
-def main():
+@basededatos.route('/verificar', methods=['GET']) 
+def verificar():
+
     conn = conectar()
     cursor = conn.cursor()
-    cursor.execute("SELECT * dbo.TUI")
-    tablas=[]
-    for row in cursor.fetchall:
-        tablas.append({"id_tui":row[0],"rol":row[1],"rut":row[2],"correo":row[3],"apellido1":row[4],"apellido2":row[5],"nombre":row[6],"cod_carrera":row[7],"año_ingreso":row[8]})
-    conn.close()
-    return render_template('index.html',tablas=tablas)
 
+    # obtener estudiante id a partir de uid de TUI
+    query = cursor.execute("SELECT * FROM estudiante WHERE uid = %s", request.args.get("uid"))
+    if query == 0:
+        print("Estudiante no encontrado")
+        cursor.close()
+        conn.close()
+        return {"valido":0, "nombre":"juanito" , "apellido1":"eeeeehh", "rol":"2025157516-1"}
+    
+    estudiante = cursor.fetchall()[0]
+    print("estudiante id:", estudiante.id)
+
+    # verificar 
+    cursor.execute("SELECT valido FROM pase_usm WHERE estudiante_id = %s", estudiante.id)
+    valido = cursor.fetchall()[0]
+    
+    print("validez:", valido)
+
+    cursor.close()
+    conn.close()
+    return {"valido":valido, "nombre":"juanito" , "apellido1":"eeeeehh", "rol":"2025157516-1"}
+    #return json.dumps()        
+
+
+"""
 @basededatos.route('/agregar', methods=['GET', 'POST'])
 def agregar():
-    if request.method == 'GET'
+    if request.method == 'GET':
         return render_template('agregar.html')
     elif request.method == 'POST':
         conn = conectar()
@@ -34,6 +54,7 @@ def agregar():
         conn.commit()
         conn.close()
         return render_template('agregar.html')
+"""
 
 if (__name__ == '__main__'):
     basededatos.run(debug=True)
