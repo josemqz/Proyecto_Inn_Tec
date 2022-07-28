@@ -26,7 +26,7 @@ import MFRC522TUI
 import signal
 import requests
 import os
-#import json
+import json
 
 continue_reading = True
 url_verificacion_estudiante = "http://10.6.49.201:5000/verificar"
@@ -43,7 +43,7 @@ signal.signal(signal.SIGINT, end_read)
 
 def verificar(uid):
     uid = "".join(list(map(str,uid)))
-    print("join:", uid)
+    #print("join:", uid)
     return requests.get(url_verificacion_estudiante, {"uid":uid}).content
 
 
@@ -51,12 +51,12 @@ def verificar(uid):
 MIFAREReader = MFRC522TUI.MFRC522()
 
 # This loop keeps checking for chips. If one is njson
-while continue_reading:
+while 1:
     (status,TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
 
     # If a card is found
     if status != MIFAREReader.MI_OK:
-        print("Tarjeta no detectada") 
+        #print("Tarjeta no detectada") 
         continue
     
     print("Tarjeta detectada!")
@@ -66,14 +66,28 @@ while continue_reading:
 
     # UID valido
     if status != MIFAREReader.MI_OK:
-        print("Identificador no válido") 
+        print("Identificador de tarjeta inválido") 
+        print("\n")
         continue
 
-    print("UID:", uid)
-    estudiante_info = verificar(uid)
-    print(estudiante_info, "\n")
-    print("Bienvenid@!\n")
-    print("Nombre:", estudiante_info.nombre, estudiante_info.apellido1)
+    #print("UID:", uid)
+
+    estudiante_info = json.loads(verificar(uid).decode('utf-8'))
+    #send_signal(estudiante_info["valido"][0])
+
+    if estudiante_info["nombre"]=="aaa":
+        print("Estudiante no encontrado")
+        print("\n\n")
+        continue
+    if estudiante_info["valido"][0] == 0:
+        print("--- Pase de movilidad invalido ---")
+        print(estudiante_info["nombre"], estudiante_info["apellido1"])
+        print("Rol:", estudiante_info["rol"])
+        print("\n\n")
+        continue
+
+    print("--- Bienvenid@!--- \n")
+    print(estudiante_info["nombre"], estudiante_info["apellido1"])
     #print("Campus:", estudiante_info.campus)
-    print("Rol:", estudiante_info.rol)
-    os.system.cls()
+    print("Rol:", estudiante_info["rol"])
+    print("\n\n")
