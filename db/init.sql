@@ -3,7 +3,7 @@ USE inn_tec_db;
 
 CREATE TABLE IF NOT EXISTS estudiantes
     (id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    id_tui INT NOT NULL,
+    id_tui VARCHAR(20) NOT NULL,
     rol VARCHAR(20) NOT NULL,
     rut VARCHAR(20) NOT NULL,
     correo VARCHAR(255),
